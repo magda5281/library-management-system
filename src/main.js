@@ -1,12 +1,14 @@
 import { Admin } from './models/Admin.js';
 import { Member } from './models/Member.js';
 import { Book } from './models/Book.js';
+import { LibrarySystem } from './services/LibraryService.js';
+import { refs } from './dom.js';
+import { renderBooks } from './ui.js';
 
-const userSwitcher = document.getElementById('userSwitcher');
-const bookSection = document.getElementById('bookSection');
-const borrowedBooks = document.getElementById('borrowedBooks');
-const bookForm = document.getElementById('bookForm');
+const { userSwitcher, bookSection, borrowedBooks, bookForm, bookList } = refs;
 let currentUser = new Member('John', 'john@test.com');
+
+const library = new LibrarySystem();
 userSwitcher.addEventListener('change', (e) => {
   const selected = e.target.value;
 
@@ -17,6 +19,7 @@ userSwitcher.addEventListener('change', (e) => {
 
   bookSection.style.display = selected === 'admin' ? 'block' : 'none';
   borrowedBooks.style.display = selected === 'member' ? 'block' : 'none';
+  renderBooks(library, currentUser);
 });
 
 bookForm.addEventListener('submit', (e) => {
@@ -28,6 +31,10 @@ bookForm.addEventListener('submit', (e) => {
   const genre = formData.get('genre');
 
   const book = new Book(title, author, genre);
+  library.addBook(book);
+
+  renderBooks(library, currentUser);
+  bookForm.reset();
 });
 
 bookSection.style.display = 'none';
