@@ -3,7 +3,7 @@ import { Member } from './models/Member.js';
 import { Book } from './models/Book.js';
 import { LibrarySystem } from './services/LibraryService.js';
 import { refs } from './dom.js';
-import { renderBooks } from './ui.js';
+import { renderBooks, renderBorrowedBooks } from './ui.js';
 
 const { userSwitcher, bookSection, borrowedBooks, bookForm, bookList } = refs;
 let currentUser = new Member('John', 'john@test.com');
@@ -20,6 +20,7 @@ userSwitcher.addEventListener('change', (e) => {
   bookSection.style.display = selected === 'admin' ? 'block' : 'none';
   borrowedBooks.style.display = selected === 'member' ? 'block' : 'none';
   renderBooks(library, currentUser);
+  renderBorrowedBooks(currentUser);
 });
 
 bookForm.addEventListener('submit', (e) => {
@@ -38,3 +39,5 @@ bookForm.addEventListener('submit', (e) => {
 });
 
 bookSection.style.display = 'none';
+renderBooks(library, currentUser);
+renderBorrowedBooks(currentUser);

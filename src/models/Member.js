@@ -18,7 +18,13 @@ export class Member extends User {
   getBorrowedBooks() {
     return borrowedMap.get(this);
   }
-  returnBook(bookId) {}
+  returnBook(book) {
+    book.isAvailable = true;
+    const borrowed = borrowedMap.get(this);
+    const updated = borrowed.filter((b) => b.id !== book.id);
+    borrowedMap.set(this, updated);
+    localStorage.setItem('borrowedBooks', JSON.stringify(updated));
+  }
 
   getRole() {
     return 'Member';
