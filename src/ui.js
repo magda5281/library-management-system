@@ -14,17 +14,17 @@ function createLi(book, color, controls) {
   return li;
 }
 
-function createBookList(books, user) {
+function createBookList(books, isAdmin) {
   const fragment = document.createDocumentFragment();
   books.forEach((book) => {
     let controls = '';
     let color = 'white';
-    if (user.getRole() === 'Member' && !book.isAvailable) {
+    if (!isAdmin && !book.isAvailable) {
       controls = `<button data-id = ${book.id} data-action ="return" class="bg-red-500 text-white rounded shadow px-4 py-2 hover:bg-red-600 cursor-pointer">Return</button>`;
       color = 'yellow-100';
-    } else if (user.getRole() === 'Member' && book.isAvailable) {
+    } else if (!isAdmin && book.isAvailable) {
       controls = `<button data-id = ${book.id} data-action ="borrow" class="bg-green-500 text-white rounded shadow px-4 py-2 hover:bg-green-600 cursor-pointer">Borrow</button>`;
-    } else if (user.getRole() === 'Admin') {
+    } else if (isAdmin) {
       controls = `<span class="semi-bold text-gray-500"> ${
         book.isAvailable ? 'Available' : 'Borrowed'
       }</span>`;
@@ -38,13 +38,12 @@ function createBookList(books, user) {
 
 export function renderBooks(library, currentUser) {
   bookList.innerHTML = '';
+  const isAdmin = currentUser.getRole() === 'Admin';
+  const allBooks = isAdmin
+    ? library.getAllBooks()
+    : library.getAvailableBooks();
 
-  const allBooks =
-    currentUser.getRole() === 'Admin'
-      ? library.getAllBooks()
-      : library.getAvailableBooks();
-
-  const list = createBookList(allBooks, currentUser);
+  const list = createBookList(allBooks, isAdmin);
 
   bookList.appendChild(list);
 
@@ -53,12 +52,8 @@ export function renderBooks(library, currentUser) {
       const id = e.target.getAttribute('data-id');
       const action = e.target.getAttribute('data-action');
       const book = library.getBookById(id);
-      if (
-        action === 'borrow' &&
-        currentUser.getRole() === 'Member' &&
-        book.isAvailable
-      ) {
-        const bb = currentUser.borrowBook(book);
+      if (action === 'borrow' && !isAdmin && book.isAvailable) {
+        currentUser.borrowBook(book);
         renderBooks(library, currentUser);
         renderBorrowedBooks(library, currentUser);
       }
@@ -67,12 +62,13 @@ export function renderBooks(library, currentUser) {
 }
 
 export function renderBorrowedBooks(library, currentUser) {
-  if (currentUser?.getRole() !== 'Member') return;
+  const isAdmin = currentUser.getRole() === 'Admin';
+  if (isAdmin) return;
   borrowedList.innerHTML = '';
 
   const borrowedBooks = currentUser.getBorrowedBooks();
 
-  const list = createBookList(borrowedBooks, currentUser);
+  const list = createBookList(borrowedBooks, isAdmin);
 
   borrowedList.appendChild(list);
 
@@ -80,10 +76,7 @@ export function renderBorrowedBooks(library, currentUser) {
     if (e.target.tagName === 'BUTTON') {
       const id = e.target.dataset.id;
       const book = library.getBookById(id);
-      if (
-        e.target.dataset.action === 'return' &&
-        currentUser.getRole() === 'Member'
-      )
+      if (e.target.dataset.action === 'return' && !isAdmin)
         currentUser.returnBook(book);
       library.save();
       renderBooks(library, currentUser);

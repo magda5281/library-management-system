@@ -20,7 +20,7 @@ userSwitcher.addEventListener('change', (e) => {
   bookSection.style.display = selected === 'admin' ? 'block' : 'none';
   borrowedBooks.style.display = selected === 'member' ? 'block' : 'none';
   renderBooks(library, currentUser);
-  renderBorrowedBooks(currentUser);
+  renderBorrowedBooks(library, currentUser);
 });
 
 bookForm.addEventListener('submit', (e) => {
@@ -40,4 +40,4 @@ bookForm.addEventListener('submit', (e) => {
 
 bookSection.style.display = 'none';
 renderBooks(library, currentUser);
-renderBorrowedBooks(currentUser);
+renderBorrowedBooks(library, currentUser);
