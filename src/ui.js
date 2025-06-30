@@ -17,7 +17,6 @@ function createLi(book, color, controls) {
 function createBookList(books, user) {
   const fragment = document.createDocumentFragment();
   books.forEach((book) => {
-    console.log('book in a list', books);
     let controls = '';
     let color = 'white';
     if (user.getRole() === 'Member' && !book.isAvailable) {
@@ -60,7 +59,6 @@ export function renderBooks(library, currentUser) {
         book.isAvailable
       ) {
         const bb = currentUser.borrowBook(book);
-        console.log(bb);
         renderBooks(library, currentUser);
         renderBorrowedBooks(library, currentUser);
       }
@@ -82,7 +80,6 @@ export function renderBorrowedBooks(library, currentUser) {
     if (e.target.tagName === 'BUTTON') {
       const id = e.target.dataset.id;
       const book = library.getBookById(id);
-      console.log('book', book);
       if (
         e.target.dataset.action === 'return' &&
         currentUser.getRole() === 'Member'
